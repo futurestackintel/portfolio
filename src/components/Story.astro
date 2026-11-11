@@ -1,0 +1,139 @@
+---
+// Paste your YouTube video ID here when the video is ready.
+// For https://www.youtube.com/watch?v=abc123XYZ the ID is: abc123XYZ
+const videoId = '';
+
+const embedUrl = videoId
+	? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&rel=0&playsinline=1`
+	: '';
+---
+
+<section id="story" class="story">
+	<h2><span class="hash">#</span> story</h2>
+	<p class="intro">
+		TODO: two sentences in your own voice about who you are and why you build.
+	</p>
+
+	<div class="window">
+		<div class="window-bar">
+			<span class="dot"></span>
+			<span class="dot"></span>
+			<span class="dot"></span>
+			<span class="window-title">story.mp4</span>
+		</div>
+
+		{videoId ? (
+			<iframe
+				id="story-frame"
+				class="frame"
+				data-src={embedUrl}
+				title="My story"
+				allow="autoplay; encrypted-media; picture-in-picture"
+				allowfullscreen
+			></iframe>
+		) : (
+			<div class="placeholder">
+				<p>&gt; video loading...</p>
+				<p class="dim">coming soon</p>
+			</div>
+		)}
+	</div>
+</section>
+
+<style>
+	.story {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 80px 24px;
+		scroll-margin-top: 70px;
+	}
+
+	h2 {
+		margin: 0 0 16px;
+		font-family: var(--font-mono);
+		font-size: 1.5rem;
+	}
+
+	.hash {
+		color: var(--accent);
+	}
+
+	.intro {
+		margin: 0 0 32px;
+		max-width: 560px;
+		color: var(--text-dim);
+	}
+
+	.window {
+		border: 1px solid var(--border);
+		background: var(--bg-panel);
+	}
+
+	.window-bar {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 14px;
+		border-bottom: 1px solid var(--border);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+	}
+
+	.dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background: var(--text-dim);
+	}
+
+	.window-title {
+		margin-left: 8px;
+		color: var(--text-dim);
+	}
+
+	.frame {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		border: 0;
+	}
+
+	.placeholder {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		aspect-ratio: 16 / 9;
+		font-family: var(--font-mono);
+		color: var(--accent);
+	}
+
+	.placeholder p {
+		margin: 0;
+	}
+
+	.dim {
+		color: var(--text-dim);
+		font-size: 0.85rem;
+	}
+</style>
+
+<script>
+	const frame = document.getElementById("story-frame") as HTMLIFrameElement | null;
+
+	if (frame) {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				for (const entry of entries) {
+					if (entry.isIntersecting) {
+						frame.src = frame.dataset.src ?? "";
+						observer.unobserve(frame);
+					}
+				}
+			},
+			{ threshold: 0.5 }
+		);
+
+		observer.observe(frame);
+	}
+</script>

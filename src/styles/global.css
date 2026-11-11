@@ -1,0 +1,30 @@
+:root {
+  --bg: #0a0a0a;
+  --bg-panel: #121212;
+  --accent: #39ff88;
+  --accent-soft: #9dffc4;
+  --text: #e8e8e8;
+  --text-dim: #8a8a8a;
+  --font-mono: "Courier New", monospace;
+  --font-body: system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}

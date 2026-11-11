@@ -1,0 +1,75 @@
+<header class="nav">
+	<a href="/" class="logo">&gt;_ Dahood-Founder @Futurestack Intelligence<span class="cursor"></span></a>
+    <nav class="links">
+		<a href="#projects">projects</a>
+		<a href="#books">books</a>
+		<a href="#story">story</a>
+		<a href="#thoughts">thoughts</a>
+        <a href="#contact">contact</a>
+	</nav>
+</header>
+
+<style>
+	.nav {
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 16px 24px;
+		background: rgba(10, 10, 10, 0.85);
+		backdrop-filter: blur(8px);
+		border-bottom: 1px solid #1f1f1f;
+	}
+
+	.logo {
+		font-family: var(--font-mono);
+		font-weight: bold;
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	.cursor {
+		display: inline-block;
+		width: 8px;
+		height: 1em;
+		margin-left: 4px;
+		background: var(--accent);
+		vertical-align: text-bottom;
+		animation: blink 1s steps(1) infinite;
+	}
+
+	@keyframes blink {
+		50% {
+			opacity: 0;
+		}
+	}
+
+	.links {
+		display: flex;
+		gap: 24px;
+	}
+
+	.links a {
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		color: var(--text-dim);
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	.links a:hover {
+		color: var(--accent);
+	}
+
+	@media (max-width: 520px) {
+		.links {
+			gap: 14px;
+		}
+
+		.links a {
+			font-size: 0.8rem;
+		}
+	}
+</style>

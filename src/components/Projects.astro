@@ -1,0 +1,62 @@
+---
+import ProjectCard from './ProjectCard.astro';
+
+const projects = [
+	{
+		title: 'Aurum Live',
+		tag: 'aurum',
+		status: 'building',
+		description: 'Replace this with one honest sentence about what it does.',
+	},
+	{
+		title: 'Aurum Games',
+		tag: 'aurum',
+		status: 'building',
+		description: 'Replace this with one honest sentence about what it does.',
+	},
+	{
+		title: 'FutureStack Portfolio',
+		tag: 'futurestack',
+		status: 'live',
+		description: 'Replace this with one honest sentence about what it does.',
+	},
+	{
+		title: 'FutureStack Academy',
+		tag: 'futurestack',
+		status: 'planned',
+		description: 'Replace this with one honest sentence about what it does.',
+	},
+];
+---
+
+<section id="projects" class="projects">
+	<h2><span class="hash">#</span> projects</h2>
+	<div class="grid">
+		{projects.map((project) => <ProjectCard {...project} />)}
+	</div>
+</section>
+
+<style>
+	.projects {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 80px 24px;
+		scroll-margin-top: 70px;
+	}
+
+	h2 {
+		margin: 0 0 32px;
+		font-family: var(--font-mono);
+		font-size: 1.5rem;
+	}
+
+	.hash {
+		color: var(--accent);
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 20px;
+	}
+</style>

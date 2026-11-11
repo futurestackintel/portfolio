@@ -1,0 +1,94 @@
+---
+import ProjectCard from './ProjectCard.astro';
+
+const books = [
+	{
+		title: 'AI-Powered Ethical Hacking Starter Kit',
+		tag: 'gumroad',
+		status: '$7',
+		description: 'A beginner guide to learning ethical hacking and cybersecurity faster with AI.',
+		href: 'https://futurestackintel.gumroad.com/l/ijitki',
+	},
+	{
+		title: 'Online Privacy 101: The Digital Ghost',
+		tag: 'gumroad',
+		status: '$3',
+		description: 'How to take back control of your data and reduce your footprint online.',
+		href: 'https://futurestackintel.gumroad.com/l/cwxnb',
+	},
+	{
+		title: 'Dark Web Decoded',
+		tag: 'gumroad',
+		status: '$3',
+		description: 'What the dark web actually is, how it works, and how to stay safe around it.',
+		href: 'https://futurestackintel.gumroad.com/l/depbg',
+	},
+	{
+		title: 'The 10-Minute Agentic AI Audit',
+		tag: 'gumroad',
+		status: 'free',
+		description: 'A quick guide to spotting agent-hijacking risks in autonomous AI agents.',
+		href: 'https://futurestackintel.gumroad.com/l/ypxck',
+	},
+	{
+		title: 'Agentic Fortress',
+		tag: 'gumroad',
+		status: 'TODO',
+		description: 'Build your own threat-monitoring system for AI agents.',
+		href: 'https://futurestackintel.gumroad.com/l/pwghz',
+	},
+	{
+		title: 'The 7 Cybersecurity Certifications That Get You Hired',
+		tag: 'gumroad',
+		status: 'TODO',
+		description: 'Which seven certifications employers actually care about, and no degree is required.',
+		href: 'https://futurestackintel.gumroad.com/l/bnyjbi',
+	},
+	{
+		title: 'No Degree, No Problem',
+		tag: 'gumroad',
+		status: '$4',
+		description: 'A 15-chapter roadmap for breaking into cybersecurity without a degree.',
+		href: 'https://futurestackintel.gumroad.com/l/vmpior',
+	},
+	{
+		title: 'The Internet Dominator',
+		tag: 'gumroad',
+		status: '$5',
+		description: 'TODO: two books in one bundle. Say what they cover.',
+		href: 'https://futurestackintel.gumroad.com/l/ponhil',
+	},
+];
+---
+
+<section id="books" class="books">
+	<h2><span class="hash">#</span> books</h2>
+	<div class="grid">
+		{books.map((book) => <ProjectCard {...book} />)}
+	</div>
+</section>
+
+<style>
+	.books {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 80px 24px;
+		scroll-margin-top: 70px;
+	}
+
+	h2 {
+		margin: 0 0 32px;
+		font-family: var(--font-mono);
+		font-size: 1.5rem;
+	}
+
+	.hash {
+		color: var(--accent);
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 20px;
+	}
+</style>

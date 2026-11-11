@@ -1,0 +1,68 @@
+---
+const { title, tag, description, status, href } = Astro.props;
+---
+
+<article class="card">
+	<div class="top">
+		<span class="tag">{tag}</span>
+		<span class="status">{status}</span>
+	</div>
+	<h3>{title}</h3>
+	<p>{description}</p>
+	{href && (
+		<a href={href} class="link" target="_blank" rel="noopener noreferrer">
+			open &gt;
+		</a>
+	)}
+</article>
+
+<style>
+	.card {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 20px;
+		background: var(--bg-panel);
+		border: 1px solid #1f1f1f;
+		transition: border-color 0.2s, transform 0.2s;
+	}
+
+	.card:hover {
+		border-color: var(--accent);
+		transform: translateY(-4px);
+	}
+
+	.top {
+		display: flex;
+		justify-content: space-between;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+	}
+
+	.tag {
+		color: var(--accent);
+	}
+
+	.status {
+		color: var(--text-dim);
+	}
+
+	h3 {
+		margin: 0;
+		font-size: 1.25rem;
+	}
+
+	p {
+		margin: 0;
+		color: var(--text-dim);
+		font-size: 0.95rem;
+	}
+
+	.link {
+		margin-top: auto;
+		font-family: var(--font-mono);
+		font-size: 0.85rem;
+		color: var(--accent);
+		text-decoration: none;
+	}
+</style>

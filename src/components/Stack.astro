@@ -1,0 +1,116 @@
+---
+// Two arrays of plain data, then loops. Same pattern as Projects and Books.
+const groups = [
+	{ title: 'build', items: ['HTML', 'CSS', 'JavaScript', 'Python', 'REST APIs', 'Git & GitHub'] },
+	{ title: 'cloud', items: ['Cloudflare Workers', 'Cloudflare Pages', 'D1', 'KV', 'Durable Objects'] },
+	{ title: 'security', items: ['OSINT', 'Linux', 'Nmap', 'Burp Suite', 'Networking fundamentals'] },
+	{ title: 'ai', items: ['AI-assisted workflows', 'AI agent security'] },
+];
+
+const certs = [
+	{ issuer: 'Cisco', name: 'Introduction to Cybersecurity' },
+	{ issuer: 'Fortinet', name: 'NSE 1' },
+];
+---
+
+<section id="stack" class="stack">
+	<h2><span class="hash">#</span> stack</h2>
+	<p class="intro">Learning in public. This is what I actually use, not everything I've read about.</p>
+
+	<div class="groups">
+		{groups.map((group) => (
+			<div class="group">
+				<h3>{group.title}</h3>
+				<ul class="chips">
+					{group.items.map((item) => <li>{item}</li>)}
+				</ul>
+			</div>
+		))}
+	</div>
+
+	<h3 class="certs-title">certifications</h3>
+	<ul class="certs">
+		{certs.map((cert) => (
+			<li><span class="issuer">{cert.issuer}</span> {cert.name}</li>
+		))}
+	</ul>
+</section>
+
+<style>
+	.stack {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 80px 24px;
+		scroll-margin-top: 70px;
+	}
+
+	h2 {
+		margin: 0 0 16px;
+		font-family: var(--font-mono);
+		font-size: 1.5rem;
+	}
+
+	.hash {
+		color: var(--accent);
+	}
+
+	.intro {
+		margin: 0 0 32px;
+		max-width: 560px;
+		color: var(--text-dim);
+	}
+
+	.groups {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 24px;
+	}
+
+	h3 {
+		margin: 0 0 10px;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		font-weight: normal;
+		color: var(--accent);
+	}
+
+	.chips,
+	.certs {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.chips li {
+		padding: 4px 10px;
+		background: var(--bg-panel);
+		border: 1px solid var(--border);
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+	}
+
+	.certs-title {
+		margin-top: 40px;
+	}
+
+	.certs {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		font-size: 0.95rem;
+	}
+
+	.issuer {
+		display: inline-block;
+		min-width: 80px;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		color: var(--text-dim);
+	}
+</style>

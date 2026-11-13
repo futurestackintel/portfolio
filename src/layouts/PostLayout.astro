@@ -1,10 +1,11 @@
 ---
 import Layout from './Layout.astro';
 
+// Astro passes the article's header (title, date, summary) in as "frontmatter"
 const { frontmatter } = Astro.props;
 ---
 
-<Layout>
+<Layout title={`${frontmatter.title} | Dahood`} description={frontmatter.summary}>
 	<article class="post">
 		<a href="/#thoughts" class="back">&lt; back to notes</a>
 		<h1>{frontmatter.title}</h1>
@@ -19,7 +20,7 @@ const { frontmatter } = Astro.props;
 	.post {
 		max-width: 700px;
 		margin: 0 auto;
-		padding: 60px 24px 100px;
+		padding: 60px 24px 40px;
 	}
 
 	.back {
@@ -42,6 +43,8 @@ const { frontmatter } = Astro.props;
 		color: var(--text-dim);
 	}
 
+	/* Markdown content arrives from outside this file, so scoped styles can't
+	   reach it. :global() lifts that limit for just the part inside the brackets. */
 	.body :global(h2) {
 		margin: 40px 0 12px;
 		font-family: var(--font-mono);

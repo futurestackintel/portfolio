@@ -1,30 +1,58 @@
 ---
 import ProjectCard from './ProjectCard.astro';
 
+/*
+  How to write each description (one sentence, same formula every time):
+  [what it is] for [who or what problem], built with [stack].
+  The honest status goes in the "status" field, so the sentence never needs to hedge.
+  Add a project = add one object. Add an href and an "open >" link appears.
+*/
 const projects = [
 	{
-		title: 'Aurum Live',
+		title: 'AURUM',
 		tag: 'aurum',
-		status: 'building',
-		description: 'Replace this with one honest sentence about what it does.',
+		status: 'private beta',
+		description:
+			'A competitive social platform where members post achievements, get them verified by the community and climb the AURUM Score rankings. Built on Cloudflare Workers, D1 and Clerk.',
+		href: 'https://tryaurum.store',
 	},
 	{
-		title: 'Aurum Games',
+		title: 'AURUM Live',
 		tag: 'aurum',
 		status: 'building',
-		description: 'Replace this with one honest sentence about what it does.',
+		description: 'The livestreaming module of AURUM, where creators broadcast live and interact with their audience in real time.',
 	},
 	{
-		title: 'FutureStack Portfolio',
-		tag: 'futurestack',
-		status: 'live',
-		description: 'Replace this with one honest sentence about what it does.',
+		title: 'AURUM Play',
+		tag: 'aurum',
+		status: 'building',
+		description: 'The competition layer of AURUM: skill-based challenges, head-to-head duels and crew competitions.',
+	},
+	{
+		title: 'PhantomCheck',
+		tag: 'cybersecurity',
+		status: 'v1 shipped',
+		description: 'An open-source OSINT tool for digital-footprint investigation, built with vanilla JavaScript on Cloudflare Pages.',
+		href: 'https://github.com/futurestackintel/phantomcheck',
+	},
+	{
+		title: 'PhantomAudit',
+		tag: 'cybersecurity',
+		status: 'building',
+		description: 'A security-assessment product for companies, built on Cloudflare Workers and D1.',
 	},
 	{
 		title: 'FutureStack Academy',
-		tag: 'futurestack',
-		status: 'planned',
-		description: 'Replace this with one honest sentence about what it does.',
+		tag: 'education',
+		status: 'bootcamp',
+		description:
+			'Cybersecurity education for beginners. I designed and organized a seven-week fundamentals bootcamp, and a full learning platform is next.',
+	},
+	{
+		title: 'FutureStack Career Platform',
+		tag: 'ai',
+		status: 'planning',
+		description: 'A free, global, AI-powered job platform that helps job seekers find roles and manage their applications.',
 	},
 ];
 ---

@@ -17,6 +17,12 @@
 		transition: opacity 0.8s ease;
 	}
 
+	/* The inline script in Layout.astro sets data-seen on <html> when this tab
+	   already saw the intro, so the overlay never flashes on refresh. */
+	:global(html[data-seen]) .overlay {
+		display: none;
+	}
+
 	.overlay.hide {
 		opacity: 0;
 		pointer-events: none;
@@ -55,10 +61,13 @@
 <script>
 	const lines = [
 		"> booting Futurestack Intelligence.dev ...",
-        "> initializing modules ...",
+		"> initializing modules ...",
 		"> loading founder information ...",
 		"> access granted.",
 	];
+
+	// Typing speed in milliseconds per letter. Bigger = slower. (You liked 100.)
+	const TYPE_MS = 60;
 
 	const overlay = document.getElementById("boot-overlay") as HTMLElement;
 	const textEl = document.getElementById("boot-text") as HTMLElement;
@@ -67,7 +76,7 @@
 	let skipped = false;
 	let finished = false;
 
-	const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+	const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 	function alreadySeen() {
 		try {
@@ -84,14 +93,17 @@
 			sessionStorage.setItem("bootSeen", "1");
 		} catch {}
 		overlay.classList.add("hide");
+		// Tell the rest of the site (XP system, avatar) what just happened.
+		window.dispatchEvent(new CustomEvent("fsi:award", { detail: "boot" }));
+		window.dispatchEvent(new CustomEvent("fsi:boot-done"));
 		setTimeout(() => overlay.remove(), 800);
 	}
 
-	async function typeLine(line) {
+	async function typeLine(line: string) {
 		for (const char of line) {
 			if (skipped) return;
 			textEl.textContent += char;
-			await delay(100);
+			await delay(TYPE_MS);
 		}
 		textEl.textContent += "\n";
 		await delay(300);
@@ -106,9 +118,14 @@
 		finish();
 	}
 
-	skipBtn.addEventListener("click", () => {
+	function skip() {
 		skipped = true;
 		finish();
+	}
+
+	skipBtn.addEventListener("click", skip);
+	document.addEventListener("keydown", (e) => {
+		if (!finished && (e.key === "Escape" || e.key === "Enter")) skip();
 	});
 
 	if (alreadySeen()) {

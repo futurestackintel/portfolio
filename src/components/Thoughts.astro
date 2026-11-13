@@ -1,4 +1,5 @@
 ---
+// Find every article file, load them all, then build a newest-first list.
 const modules = import.meta.glob('../pages/thoughts/*.md', { eager: true });
 
 const posts = Object.values(modules)

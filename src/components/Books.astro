@@ -1,13 +1,46 @@
 ---
 import ProjectCard from './ProjectCard.astro';
 
+/*
+  Prices change on Gumroad. The "status" field shows the price (or "ebook"),
+  so update it here when you change the price there.
+  draft: true hides a card until you're ready. Delete that line to show it.
+*/
 const books = [
+	{
+		title: 'Agentic Fortress',
+		tag: 'gumroad',
+		status: 'ebook',
+		description: 'Build your own threat-monitoring system for AI agents: a practical guide to securing agentic AI.',
+		href: 'https://futurestackintel.gumroad.com/l/pwghz',
+	},
 	{
 		title: 'AI-Powered Ethical Hacking Starter Kit',
 		tag: 'gumroad',
 		status: '$7',
 		description: 'A beginner guide to learning ethical hacking and cybersecurity faster with AI.',
 		href: 'https://futurestackintel.gumroad.com/l/ijitki',
+	},
+	{
+		title: 'No Degree, No Problem',
+		tag: 'gumroad',
+		status: '$4',
+		description: 'A 15-chapter roadmap for breaking into cybersecurity without a degree.',
+		href: 'https://futurestackintel.gumroad.com/l/vmpior',
+	},
+	{
+		title: 'The 7 Cybersecurity Certifications That Get You Hired',
+		tag: 'gumroad',
+		status: 'ebook',
+		description: 'Which seven certifications employers actually care about, and no degree is required.',
+		href: 'https://futurestackintel.gumroad.com/l/bnyjbi',
+	},
+	{
+		title: 'The 10-Minute Agentic AI Audit',
+		tag: 'gumroad',
+		status: 'free',
+		description: 'A quick guide to spotting agent-hijacking risks in autonomous AI agents.',
+		href: 'https://futurestackintel.gumroad.com/l/ypxck',
 	},
 	{
 		title: 'Online Privacy 101: The Digital Ghost',
@@ -24,47 +57,23 @@ const books = [
 		href: 'https://futurestackintel.gumroad.com/l/depbg',
 	},
 	{
-		title: 'The 10-Minute Agentic AI Audit',
-		tag: 'gumroad',
-		status: 'free',
-		description: 'A quick guide to spotting agent-hijacking risks in autonomous AI agents.',
-		href: 'https://futurestackintel.gumroad.com/l/ypxck',
-	},
-	{
-		title: 'Agentic Fortress',
-		tag: 'gumroad',
-		status: 'TODO',
-		description: 'Build your own threat-monitoring system for AI agents.',
-		href: 'https://futurestackintel.gumroad.com/l/pwghz',
-	},
-	{
-		title: 'The 7 Cybersecurity Certifications That Get You Hired',
-		tag: 'gumroad',
-		status: 'TODO',
-		description: 'Which seven certifications employers actually care about, and no degree is required.',
-		href: 'https://futurestackintel.gumroad.com/l/bnyjbi',
-	},
-	{
-		title: 'No Degree, No Problem',
-		tag: 'gumroad',
-		status: '$4',
-		description: 'A 15-chapter roadmap for breaking into cybersecurity without a degree.',
-		href: 'https://futurestackintel.gumroad.com/l/vmpior',
-	},
-	{
 		title: 'The Internet Dominator',
 		tag: 'gumroad',
 		status: '$5',
-		description: 'TODO: two books in one bundle. Say what they cover.',
+		description: 'TODO: say what the two books in this bundle cover.',
 		href: 'https://futurestackintel.gumroad.com/l/ponhil',
+		draft: true,
 	},
 ];
+
+// .filter() keeps only the items where the test is true: here, "not a draft"
+const visible = books.filter((book) => !book.draft);
 ---
 
 <section id="books" class="books">
 	<h2><span class="hash">#</span> books</h2>
 	<div class="grid">
-		{books.map((book) => <ProjectCard {...book} />)}
+		{visible.map((book) => <ProjectCard {...book} />)}
 	</div>
 </section>
 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /vault-7f3a.txt
+# nothing to see here. you looked anyway. good.

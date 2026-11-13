@@ -1,3 +1,4 @@
+/* ---------- design tokens: change a value here, the whole site follows ---------- */
 :root {
   --bg: #0a0a0a;
   --bg-panel: #121212;
@@ -5,14 +6,20 @@
   --accent-soft: #9dffc4;
   --text: #e8e8e8;
   --text-dim: #8a8a8a;
-  --font-mono: "Courier New", monospace;
-  --font-body: system-ui, sans-serif;
+  --border: #1f1f1f;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Consolas, Menlo, monospace;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* ---------- reset ---------- */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -27,4 +34,64 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   line-height: 1.6;
+}
+
+/* faint dot grid behind everything: a terminal/HUD feel without noise */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(57, 255, 136, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---------- reveal on scroll ----------
+   The inline script in Layout.astro adds class "js" to <html>.
+   Sections start hidden, JS adds "in" when they scroll into view.
+   The animation at the bottom is a safety net: if JS ever fails,
+   everything still appears after 2.5 seconds. */
+.js main > section:not(.hero) {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  animation: reveal-fallback 0s 2.5s forwards;
+}
+
+.js main > section.in {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+@keyframes reveal-fallback {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js main > section:not(.hero) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation: none;
+  }
 }

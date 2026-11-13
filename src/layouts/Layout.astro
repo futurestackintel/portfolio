@@ -1,20 +1,79 @@
 ---
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
+import Avatar from '../components/Avatar.astro';
+import Gamify from '../components/Gamify.astro';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = 'Dahood | Futurestack Intelligence',
+	description = 'Founder of Futurestack Intelligence. I build secure web tools, AI automations and cloud apps, and document what I learn.',
+} = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<meta name="theme-color" content="#0a0a0a" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Portfolio</title>
+		<title>{title}</title>
+
+		<!--
+			Runs before the page paints (is:inline = not bundled).
+			1) adds class "js" so the CSS knows scripting works
+			2) if the boot intro was already seen this tab, hides it immediately
+			   so it never flashes on refresh
+		-->
+		<script is:inline>
+			document.documentElement.classList.add('js');
+			try {
+				if (sessionStorage.getItem('bootSeen') === '1') {
+					document.documentElement.dataset.seen = '1';
+				}
+			} catch (e) {}
+		</script>
 	</head>
 	<body>
+		<!-- hello, curious one. next step: Y2hlY2sgL3JvYm90cy50eHQ= -->
 		<Navbar />
-		<slot />
+		<main>
+			<slot />
+		</main>
+		<footer class="footer">
+			<span>© 2026 Dahood · Futurestack Intelligence</span>
+			<span class="motto">Beyond the Horizon of Logic</span>
+		</footer>
+		<Avatar />
+		<Gamify />
 	</body>
 </html>
+
+<style>
+	.footer {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 8px 24px;
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 32px 24px 96px;
+		border-top: 1px solid var(--border);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--text-dim);
+	}
+
+	.motto {
+		color: var(--accent);
+	}
+</style>

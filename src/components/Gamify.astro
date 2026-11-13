@@ -1,0 +1,713 @@
+<!--
+	The game layer: XP bar (HUD), achievements panel, toasts, hidden terminal.
+	Other components talk to it with events instead of importing it:
+	  window.dispatchEvent(new CustomEvent("fsi:award", { detail: "boot" }))
+	This file answers with "fsi:gain" so the avatar can react.
+-->
+<div class="fsi-hud">
+	<button id="fsi-hud-btn" class="fsi-btn" type="button" aria-controls="fsi-panel" aria-expanded="false">
+		<span class="fsi-lvl">LVL <b id="fsi-level">1</b><span class="fsi-lvl-name"> · <span id="fsi-level-name">rookie</span></span></span>
+		<span class="fsi-bar" aria-hidden="true"><span id="fsi-fill" class="fsi-fill"></span></span>
+		<span class="fsi-xp"><b id="fsi-xp">0</b> xp</span>
+	</button>
+	<button id="fsi-term-btn" class="fsi-btn" type="button" aria-controls="fsi-term" aria-label="Open terminal">&gt;_</button>
+</div>
+
+<aside id="fsi-panel" class="fsi-panel" hidden aria-label="Achievements">
+	<div class="fsi-panel-head">
+		<span>achievements</span>
+		<button id="fsi-panel-close" class="fsi-x" type="button" aria-label="Close achievements">×</button>
+	</div>
+	<ul id="fsi-list" class="fsi-list"></ul>
+	<button id="fsi-reset" class="fsi-link" type="button">reset progress</button>
+</aside>
+
+<section id="fsi-term" class="fsi-term" hidden aria-label="Terminal">
+	<div id="fsi-term-out" class="fsi-out" aria-live="polite"></div>
+	<form id="fsi-term-form" class="fsi-form" autocomplete="off">
+		<span aria-hidden="true">$</span>
+		<input id="fsi-term-in" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Terminal input" />
+	</form>
+</section>
+
+<div id="fsi-toasts" class="fsi-toasts" aria-live="polite"></div>
+
+<style is:global>
+	/* is:global because the script creates some of these elements at runtime,
+	   and Astro's scoped styles only reach elements that exist at build time.
+	   Every class starts with fsi- so nothing else on the site is affected. */
+	.fsi-hud {
+		position: fixed;
+		left: 12px;
+		bottom: 12px;
+		z-index: 200;
+		display: flex;
+		gap: 8px;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+	}
+
+	.fsi-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 10px;
+		padding: 8px 12px;
+		background: rgba(18, 18, 18, 0.92);
+		color: var(--text);
+		border: 1px solid var(--border);
+		font: inherit;
+		cursor: pointer;
+		backdrop-filter: blur(6px);
+		transition: border-color 0.2s;
+	}
+
+	.fsi-btn:hover {
+		border-color: var(--accent);
+	}
+
+	.fsi-lvl b,
+	.fsi-xp b {
+		color: var(--accent);
+	}
+
+	.fsi-lvl-name {
+		color: var(--text-dim);
+	}
+
+	.fsi-bar {
+		width: 72px;
+		height: 6px;
+		background: #1f1f1f;
+		border-radius: 3px;
+		overflow: hidden;
+	}
+
+	.fsi-fill {
+		display: block;
+		width: 0;
+		height: 100%;
+		background: var(--accent);
+		transition: width 0.5s ease;
+	}
+
+	.fsi-pulse {
+		animation: fsi-pulse 0.7s ease-out;
+	}
+
+	@keyframes fsi-pulse {
+		0% {
+			box-shadow: 0 0 0 0 rgba(57, 255, 136, 0.6);
+		}
+		100% {
+			box-shadow: 0 0 0 12px rgba(57, 255, 136, 0);
+		}
+	}
+
+	/* achievements panel */
+	.fsi-panel {
+		position: fixed;
+		left: 12px;
+		bottom: 60px;
+		z-index: 300;
+		width: min(340px, calc(100vw - 24px));
+		max-height: 70vh;
+		overflow-y: auto;
+		padding: 14px 16px;
+		background: var(--bg-panel);
+		border: 1px solid var(--accent);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+	}
+
+	.fsi-panel[hidden],
+	.fsi-term[hidden] {
+		display: none;
+	}
+
+	.fsi-panel-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 10px;
+		color: var(--accent);
+	}
+
+	.fsi-x {
+		background: none;
+		border: 0;
+		color: var(--text-dim);
+		font-size: 1.2rem;
+		cursor: pointer;
+	}
+
+	.fsi-list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.fsi-item {
+		display: grid;
+		grid-template-columns: 30px 1fr auto;
+		gap: 4px 8px;
+		color: var(--text-dim);
+	}
+
+	.fsi-item .fsi-mark {
+		white-space: nowrap;
+	}
+
+	.fsi-item.done {
+		color: var(--text);
+	}
+
+	.fsi-item .fsi-mark {
+		color: var(--text-dim);
+	}
+
+	.fsi-item.done .fsi-mark,
+	.fsi-item.done .fsi-pts {
+		color: var(--accent);
+	}
+
+	.fsi-item small {
+		grid-column: 1 / 4;
+		color: var(--text-dim);
+		font-size: 0.72rem;
+	}
+
+	.fsi-link {
+		margin-top: 12px;
+		padding: 0;
+		background: none;
+		border: 0;
+		color: var(--text-dim);
+		font: inherit;
+		font-size: 0.72rem;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	/* toasts */
+	.fsi-toasts {
+		position: fixed;
+		top: 70px;
+		right: 12px;
+		z-index: 400;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: min(300px, calc(100vw - 24px));
+		pointer-events: none;
+	}
+
+	.fsi-toast {
+		padding: 10px 14px;
+		background: var(--bg-panel);
+		border: 1px solid var(--border);
+		border-left: 3px solid var(--accent);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		animation: fsi-in 0.3s ease-out;
+	}
+
+	.fsi-toast b {
+		display: block;
+		color: var(--accent);
+	}
+
+	.fsi-toast span {
+		color: var(--text-dim);
+	}
+
+	@keyframes fsi-in {
+		from {
+			opacity: 0;
+			transform: translateX(16px);
+		}
+	}
+
+	/* terminal */
+	.fsi-term {
+		position: fixed;
+		left: 12px;
+		right: 12px;
+		bottom: 60px;
+		z-index: 300;
+		display: flex;
+		flex-direction: column;
+		max-width: 680px;
+		height: min(320px, 50vh);
+		background: #070707;
+		border: 1px solid var(--accent);
+		box-shadow: 0 0 24px rgba(57, 255, 136, 0.12);
+		font-family: var(--font-mono);
+		font-size: 0.82rem;
+	}
+
+	.fsi-out {
+		flex: 1;
+		padding: 12px 14px 4px;
+		overflow-y: auto;
+	}
+
+	.fsi-line {
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+		color: var(--text);
+	}
+
+	.fsi-line.cmd {
+		color: var(--accent-soft);
+	}
+
+	.fsi-line.dim {
+		color: var(--text-dim);
+	}
+
+	.fsi-line.ok {
+		color: var(--accent);
+	}
+
+	.fsi-line.err {
+		color: #ff7a7a;
+	}
+
+	.fsi-form {
+		display: flex;
+		gap: 8px;
+		align-items: center;
+		padding: 8px 14px 12px;
+		border-top: 1px solid var(--border);
+		color: var(--accent);
+	}
+
+	.fsi-form input {
+		flex: 1;
+		min-width: 0;
+		background: none;
+		border: 0;
+		outline: 0;
+		color: var(--text);
+		font: inherit;
+		font-size: 16px; /* 16px stops iPhones zooming in on focus */
+	}
+
+	@media (max-width: 520px) {
+		.fsi-lvl-name,
+		.fsi-xp {
+			display: none;
+		}
+
+		.fsi-bar {
+			width: 44px;
+		}
+	}
+
+	/* phones: the terminal moves to the TOP so the on-screen keyboard
+	   (which covers the bottom half) can't hide what you're typing,
+	   and toasts shrink to one line so they don't cover the nav. */
+	@media (max-width: 700px) {
+		.fsi-toasts {
+			top: 92px;
+		}
+
+		.fsi-toast span {
+			display: none;
+		}
+
+		.fsi-term {
+			top: 150px;
+			bottom: auto;
+			height: min(260px, 36vh);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.fsi-fill,
+		.fsi-toast,
+		.fsi-pulse {
+			animation: none;
+			transition: none;
+		}
+	}
+</style>
+
+<script>
+	// ============================================================
+	// 1. DATA: what can be earned
+	// ============================================================
+	type Ach = { title: string; desc: string; xp: number };
+
+	const ACH: Record<string, Ach> = {
+		boot: { title: "Access granted", desc: "Finished (or skipped) the boot sequence", xp: 10 },
+		explorer: { title: "Explorer", desc: "Visited every section", xp: 25 },
+		bookworm: { title: "Bookworm", desc: "Opened one of the books", xp: 20 },
+		reader: { title: "Reader", desc: "Opened an article", xp: 15 },
+		friend: { title: "Friendly", desc: "Said hi to Byte three times", xp: 10 },
+		hacker: { title: "Hacker", desc: "Opened the terminal", xp: 15 },
+		flag: { title: "Flag captured", desc: "Solved the hidden challenge", xp: 100 },
+	};
+
+	const SECTIONS = ["projects", "stack", "books", "story", "thoughts", "contact"];
+	const SECTION_XP = 10;
+	const LEVELS = ["rookie", "scout", "builder", "hacker", "architect", "root"];
+	const STEP = 50; // xp per level
+
+	// We store a hash of the flag, not the flag itself. The hash can't be
+	// turned back into the flag, but we can hash a guess and compare.
+	const FLAG_HASH = "b758cce0148aa4d031484af21e3982b24d580843435db963e36f2ff54a8a0c77";
+	const KEY = "fsi-portfolio-v1";
+
+	// ============================================================
+	// 2. STATE: saved in localStorage so progress survives a refresh
+	// ============================================================
+	interface State {
+		done: string[];
+		visited: string[];
+		xp: number;
+	}
+
+	const onlyStrings = (v: unknown): string[] =>
+		Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
+
+	function load(): State {
+		try {
+			const s = JSON.parse(localStorage.getItem(KEY) || "{}");
+			// localStorage can be edited by anyone, so check what comes out of it
+			return { done: onlyStrings(s.done), visited: onlyStrings(s.visited), xp: Math.max(0, Number(s.xp) || 0) };
+		} catch {
+			return { done: [], visited: [], xp: 0 };
+		}
+	}
+
+	function save() {
+		try {
+			localStorage.setItem(KEY, JSON.stringify(state));
+		} catch {}
+	}
+
+	let state = load();
+	const levelOf = (xp: number) => Math.min(LEVELS.length, Math.floor(xp / STEP) + 1);
+
+	// ============================================================
+	// 3. UI: find the elements once, then update them
+	// ============================================================
+	const $ = (id: string) => document.getElementById(id) as HTMLElement;
+	const hud = document.querySelector(".fsi-hud") as HTMLElement;
+	const hudBtn = $("fsi-hud-btn");
+	const termBtn = $("fsi-term-btn");
+	const levelEl = $("fsi-level");
+	const levelNameEl = $("fsi-level-name");
+	const xpEl = $("fsi-xp");
+	const fillEl = $("fsi-fill");
+	const panel = $("fsi-panel");
+	const list = $("fsi-list");
+	const toasts = $("fsi-toasts");
+	const term = $("fsi-term");
+	const out = $("fsi-term-out");
+	const form = $("fsi-term-form") as HTMLFormElement;
+	const input = $("fsi-term-in") as HTMLInputElement;
+
+	function render() {
+		const level = levelOf(state.xp);
+		levelEl.textContent = String(level);
+		levelNameEl.textContent = LEVELS[level - 1];
+		xpEl.textContent = String(state.xp);
+		fillEl.style.width = (level >= LEVELS.length ? 100 : ((state.xp % STEP) / STEP) * 100) + "%";
+		hudBtn.setAttribute("aria-label", `Level ${level}, ${state.xp} XP. Toggle achievements.`);
+
+		list.textContent = "";
+		for (const [id, a] of Object.entries(ACH)) {
+			const done = state.done.includes(id);
+			const li = document.createElement("li");
+			li.className = "fsi-item" + (done ? " done" : "");
+
+			const mark = document.createElement("span");
+			mark.className = "fsi-mark";
+			mark.textContent = done ? "[x]" : "[ ]";
+
+			const title = document.createElement("span");
+			title.textContent = a.title;
+
+			const pts = document.createElement("span");
+			pts.className = "fsi-pts";
+			pts.textContent = `+${a.xp}`;
+
+			const small = document.createElement("small");
+			small.textContent = id === "explorer" ? `${a.desc} (${state.visited.length}/${SECTIONS.length})` : a.desc;
+
+			li.append(mark, title, pts, small);
+			list.append(li);
+		}
+	}
+
+	function toast(title: string, desc: string) {
+		const el = document.createElement("div");
+		el.className = "fsi-toast";
+		const b = document.createElement("b");
+		b.textContent = title;
+		const s = document.createElement("span");
+		s.textContent = desc;
+		el.append(b, s);
+		toasts.append(el);
+		while (toasts.children.length > 3) toasts.firstElementChild?.remove();
+		setTimeout(() => el.remove(), 4200);
+	}
+
+	function pulse() {
+		hud.classList.remove("fsi-pulse");
+		void hud.offsetWidth;
+		hud.classList.add("fsi-pulse");
+	}
+
+	// ============================================================
+	// 4. GAME LOGIC
+	// ============================================================
+	function gain(points: number, title: string, quiet: boolean, desc = "") {
+		const before = levelOf(state.xp);
+		state.xp += points;
+		save();
+		const after = levelOf(state.xp);
+		render();
+		pulse();
+		if (!quiet) toast(`${title}  +${points} xp`, desc);
+		if (after > before) toast(`Level ${after}`, `You're a ${LEVELS[after - 1]} now.`);
+		window.dispatchEvent(
+			new CustomEvent("fsi:gain", {
+				detail: { title, xp: points, level: after, levelName: LEVELS[after - 1], leveledUp: after > before, quiet },
+			})
+		);
+	}
+
+	function award(id: string) {
+		const a = ACH[id];
+		if (!a || state.done.includes(id)) return; // unknown, or already earned
+		state.done.push(id);
+		gain(a.xp, a.title, false, a.desc);
+	}
+
+	function visit(id: string) {
+		if (!SECTIONS.includes(id) || !document.getElementById(id) || state.visited.includes(id)) return;
+		state.visited.push(id);
+		gain(SECTION_XP, `Visited ${id}`, true);
+		if (SECTIONS.every((s) => state.visited.includes(s))) award("explorer");
+	}
+
+	// other components send "fsi:award" events
+	window.addEventListener("fsi:award", (e) => award(String((e as CustomEvent).detail)));
+
+	// scrolling into a section earns XP. The "middle band" margin makes tall
+	// sections count as soon as they cross the middle of the screen.
+	const seen = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) {
+				if (entry.isIntersecting) {
+					visit(entry.target.id);
+					seen.unobserve(entry.target);
+				}
+			}
+		},
+		{ rootMargin: "-40% 0px -40% 0px" }
+	);
+	for (const id of SECTIONS) {
+		const el = document.getElementById(id);
+		if (el) seen.observe(el);
+	}
+	// the last section is short, so also count "scrolled to the very bottom"
+	window.addEventListener(
+		"scroll",
+		() => {
+			if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) visit("contact");
+		},
+		{ passive: true }
+	);
+
+	// reveal sections as they scroll in (CSS in global.css does the animation)
+	const reveal = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) {
+				if (entry.isIntersecting) {
+					entry.target.classList.add("in");
+					reveal.unobserve(entry.target);
+				}
+			}
+		},
+		{ threshold: 0.08 }
+	);
+	document.querySelectorAll("main > section").forEach((el) => reveal.observe(el));
+
+	// clicking a book link earns Bookworm. We compare the real hostname,
+	// so a lookalike such as evil-gumroad.com doesn't count.
+	document.addEventListener("click", (e) => {
+		const a = (e.target as Element).closest("a");
+		if (!a) return;
+		try {
+			const host = new URL(a.href).hostname;
+			if (["gumroad.com", "payhip.com"].some((d) => host === d || host.endsWith("." + d))) award("bookworm");
+		} catch {}
+	});
+
+	if (location.pathname.startsWith("/thoughts/")) award("reader");
+
+	// ============================================================
+	// 5. PANEL + TERMINAL open/close
+	// ============================================================
+	function openPanel() {
+		closeTerm();
+		panel.hidden = false;
+		hudBtn.setAttribute("aria-expanded", "true");
+	}
+	function closePanel() {
+		panel.hidden = true;
+		hudBtn.setAttribute("aria-expanded", "false");
+	}
+
+	function openTerm() {
+		closePanel();
+		term.hidden = false;
+		if (!out.childElementCount) print('futurestack terminal v1. type "help".', "dim");
+		input.focus();
+		award("hacker");
+	}
+	function closeTerm() {
+		term.hidden = true;
+	}
+
+	hudBtn.addEventListener("click", () => (panel.hidden ? openPanel() : closePanel()));
+	$("fsi-panel-close").addEventListener("click", closePanel);
+	termBtn.addEventListener("click", () => (term.hidden ? openTerm() : closeTerm()));
+	$("fsi-reset").addEventListener("click", () => {
+		state = { done: [], visited: [], xp: 0 };
+		save();
+		render();
+	});
+
+	document.addEventListener("keydown", (e) => {
+		if (e.key === "Escape") {
+			closeTerm();
+			closePanel();
+			return;
+		}
+		if (e.key !== "`" || e.ctrlKey || e.metaKey || e.altKey) return;
+		const t = e.target as HTMLElement;
+		const typing = t instanceof HTMLInputElement || t instanceof HTMLTextAreaElement || t.isContentEditable;
+		if (typing && t !== input) return; // don't steal the key from other inputs
+		e.preventDefault();
+		term.hidden ? openTerm() : closeTerm();
+	});
+
+	// ============================================================
+	// 6. TERMINAL commands
+	// ============================================================
+	function print(text: string, cls = "") {
+		const line = document.createElement("div");
+		line.className = "fsi-line " + cls;
+		line.textContent = text; // textContent: whatever the visitor types is shown as text, never run as HTML
+		out.append(line);
+		out.scrollTop = out.scrollHeight;
+	}
+
+	async function sha256(text: string) {
+		if (!window.crypto?.subtle) return null;
+		const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+		return Array.from(new Uint8Array(buf))
+			.map((b) => b.toString(16).padStart(2, "0"))
+			.join("");
+	}
+
+	const hints = [
+		"hint 1/3: everything the server sends you is readable. read the whole page, comments included.",
+		"hint 2/3: that odd string in the source looks like base64. decode it.",
+		"hint 3/3: robots.txt tells crawlers where not to go. crawlers aren't the only readers.",
+	];
+	let hintIndex = 0;
+
+	// A Map, not a plain object: with an object, typing "constructor" would
+	// find a built-in function. A Map only has what we put in it.
+	const commands = new Map<string, (args: string[]) => void | Promise<void>>([
+		[
+			"help",
+			() =>
+				print(
+					[
+						"help          this list",
+						"whoami        who built this",
+						"ls            list sections",
+						"goto <name>   jump to a section",
+						"xp            your level and XP",
+						"hint          a nudge for the hidden challenge",
+						"flag <value>  submit a flag",
+						"clear / exit",
+					].join("\n")
+				),
+		],
+		["whoami", () => print("Dahood. Founder of Futurestack Intelligence. Builds secure web tools, AI automations and cloud apps.")],
+		["ls", () => print(SECTIONS.join("   "))],
+		[
+			"goto",
+			(args) => {
+				const target = args[0] ?? "";
+				if (!SECTIONS.includes(target)) return print(`goto: unknown section "${target}". try: ${SECTIONS.join(", ")}`, "err");
+				document.getElementById(target)?.scrollIntoView({ behavior: "smooth" });
+				closeTerm();
+			},
+		],
+		[
+			"xp",
+			() => {
+				const level = levelOf(state.xp);
+				print(`level ${level} (${LEVELS[level - 1]}) · ${state.xp} xp · ${state.done.length}/${Object.keys(ACH).length} achievements`);
+			},
+		],
+		["hint", () => print(hints[hintIndex++ % hints.length], "dim")],
+		[
+			"flag",
+			async (args) => {
+				const guess = args.join(" ").trim();
+				if (!guess) return print("usage: flag <the flag you found>", "err");
+				const hash = await sha256(guess);
+				if (hash === null) return print("this browser blocks crypto on insecure pages. use https or localhost.", "err");
+				if (hash !== FLAG_HASH) return print("nope. keep digging.", "err");
+				if (state.done.includes("flag")) return print("already captured. respect.", "ok");
+				print("FLAG CORRECT. you read like an attacker. +100 xp", "ok");
+				award("flag");
+			},
+		],
+		["sudo", () => print("nice try. this incident will be reported. (to nobody.)", "dim")],
+		["clear", () => (out.textContent = "")],
+		["exit", () => closeTerm()],
+	]);
+
+	const history: string[] = [];
+	let historyPos = 0;
+
+	form.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const raw = input.value.trim();
+		input.value = "";
+		if (!raw) return;
+		history.push(raw);
+		historyPos = history.length;
+		print("$ " + raw, "cmd");
+		const [cmd, ...args] = raw.split(/\s+/);
+		const run = commands.get(cmd.toLowerCase());
+		if (run) await run(args);
+		else print(`${cmd}: command not found. type "help".`, "err");
+	});
+
+	input.addEventListener("keydown", (e) => {
+		if (e.key === "ArrowUp" && historyPos > 0) {
+			e.preventDefault();
+			input.value = history[--historyPos];
+		} else if (e.key === "ArrowDown") {
+			e.preventDefault();
+			input.value = historyPos < history.length - 1 ? history[++historyPos] : ((historyPos = history.length), "");
+		}
+	});
+
+	render();
+</script>

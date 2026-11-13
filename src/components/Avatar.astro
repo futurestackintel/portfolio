@@ -1,0 +1,427 @@
+<!--
+	"Byte", the site mascot. It's an inline SVG (shapes written as code), so:
+	- no image file to download
+	- every part can be animated separately with CSS
+	- the script below only changes a few CSS variables (eye position, head tilt)
+-->
+<div id="byte" class="byte">
+	<p id="byte-bubble" class="bubble" role="status" hidden></p>
+	<button id="byte-btn" class="byte-btn" type="button" aria-label="Say hi to Byte, the site mascot">
+		<svg viewBox="0 0 120 150" class="svg" aria-hidden="true" focusable="false">
+			<!-- body: slowly "breathes" -->
+			<g class="breathe">
+				<path d="M16 150 C16 114 34 100 60 100 C86 100 104 114 104 150 Z" class="hoodie"></path>
+				<path d="M52 108 v16 M68 108 v16" class="string"></path>
+				<path d="M28 118 L18 142" class="arm"></path>
+				<g class="arm-r">
+					<path d="M92 118 L110 90" class="arm"></path>
+					<circle cx="111" cy="86" r="7" class="hand"></circle>
+				</g>
+			</g>
+
+			<!-- head: gently sways, tilts toward your cursor -->
+			<g class="sway">
+				<g class="head">
+					<line x1="60" y1="22" x2="60" y2="9" class="antenna"></line>
+					<circle cx="60" cy="7" r="4" class="led"></circle>
+					<ellipse cx="60" cy="62" rx="40" ry="42" class="hood"></ellipse>
+					<rect x="30" y="44" width="60" height="40" rx="14" class="visor"></rect>
+					<g class="eyes">
+						<rect class="eye" x="42" y="56" width="11" height="15" rx="4"></rect>
+						<rect class="eye" x="67" y="56" width="11" height="15" rx="4"></rect>
+					</g>
+					<path class="mouth smile" d="M52 76 Q60 81 68 76"></path>
+					<path class="mouth grin" d="M49 75 Q60 90 71 75"></path>
+				</g>
+			</g>
+		</svg>
+	</button>
+</div>
+
+<style>
+	.byte {
+		position: fixed;
+		right: 12px;
+		bottom: 12px;
+		z-index: 150;
+		width: 88px;
+	}
+
+	.byte-btn {
+		display: block;
+		width: 100%;
+		padding: 0;
+		background: none;
+		border: 0;
+		cursor: pointer;
+	}
+
+	.svg {
+		display: block;
+		width: 100%;
+		height: auto;
+		overflow: visible;
+		filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+	}
+
+	.hoodie,
+	.hood {
+		fill: #181818;
+		stroke: #2e2e2e;
+		stroke-width: 2;
+	}
+
+	.string {
+		fill: none;
+		stroke: var(--accent);
+		stroke-width: 2;
+		stroke-linecap: round;
+		opacity: 0.7;
+	}
+
+	.arm {
+		fill: none;
+		stroke: #222;
+		stroke-width: 9;
+		stroke-linecap: round;
+	}
+
+	.hand {
+		fill: var(--accent);
+	}
+
+	.visor {
+		fill: #050505;
+		stroke: var(--accent);
+		stroke-width: 2;
+		filter: drop-shadow(0 0 4px rgba(57, 255, 136, 0.45));
+	}
+
+	.antenna {
+		stroke: #2e2e2e;
+		stroke-width: 3;
+		stroke-linecap: round;
+	}
+
+	.led {
+		fill: var(--accent);
+		animation: led 2s ease-in-out infinite;
+	}
+
+	.eye {
+		fill: var(--accent);
+		transform-box: fill-box;
+		transform-origin: center;
+		animation: blink 5s infinite;
+	}
+
+	.mouth {
+		fill: none;
+		stroke: var(--accent);
+		stroke-width: 3;
+		stroke-linecap: round;
+	}
+
+	.grin {
+		opacity: 0;
+	}
+
+	.byte.happy .smile {
+		opacity: 0;
+	}
+
+	.byte.happy .grin {
+		opacity: 1;
+	}
+
+	/* cursor-driven: the script sets --ex, --ey and --tilt on #byte */
+	.eyes {
+		transform: translate(var(--ex, 0px), var(--ey, 0px));
+		transition: transform 0.12s ease-out;
+	}
+
+	.head {
+		transform: rotate(var(--tilt, 0deg));
+		transform-origin: 60px 96px;
+		transition: transform 0.2s ease-out;
+	}
+
+	.sway {
+		transform-origin: 60px 96px;
+		animation: sway 6s ease-in-out infinite;
+	}
+
+	.breathe {
+		animation: breathe 4s ease-in-out infinite;
+	}
+
+	/* resting pose = arm down (rotated 120deg). Waving swings it up and back. */
+	.arm-r {
+		transform-origin: 92px 118px;
+		transform: rotate(120deg);
+	}
+
+	.byte.waving .arm-r {
+		animation: wave 2.2s ease-in-out;
+	}
+
+	@keyframes blink {
+		0%,
+		92%,
+		100% {
+			transform: scaleY(1);
+		}
+		95% {
+			transform: scaleY(0.08);
+		}
+	}
+
+	@keyframes sway {
+		0%,
+		100% {
+			transform: rotate(-1.2deg);
+		}
+		50% {
+			transform: rotate(1.2deg);
+		}
+	}
+
+	@keyframes breathe {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(2px);
+		}
+	}
+
+	@keyframes led {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.35;
+		}
+	}
+
+	@keyframes wave {
+		0% {
+			transform: rotate(120deg);
+		}
+		20% {
+			transform: rotate(0deg);
+		}
+		35% {
+			transform: rotate(18deg);
+		}
+		50% {
+			transform: rotate(-8deg);
+		}
+		65% {
+			transform: rotate(18deg);
+		}
+		80% {
+			transform: rotate(-8deg);
+		}
+		100% {
+			transform: rotate(120deg);
+		}
+	}
+
+	.bubble {
+		position: absolute;
+		right: 0;
+		bottom: calc(100% + 8px);
+		width: max-content;
+		max-width: 210px;
+		margin: 0;
+		padding: 8px 12px;
+		background: var(--bg-panel);
+		border: 1px solid var(--accent);
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		line-height: 1.45;
+		color: var(--text);
+		animation: pop 0.25s ease-out;
+	}
+
+	.bubble[hidden] {
+		display: none;
+	}
+
+	@keyframes pop {
+		from {
+			opacity: 0;
+			transform: translateY(6px);
+		}
+	}
+
+	@media (max-width: 520px) {
+		.byte {
+			width: 68px;
+		}
+
+		.bubble {
+			max-width: 170px;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.sway,
+		.breathe,
+		.led,
+		.eye,
+		.byte.waving .arm-r,
+		.bubble {
+			animation: none;
+		}
+
+		.eyes,
+		.head {
+			transition: none;
+		}
+	}
+</style>
+
+<script>
+	const KEY = "fsi-portfolio-v1";
+	const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+	const root = document.getElementById("byte") as HTMLElement;
+	const btn = document.getElementById("byte-btn") as HTMLElement;
+	const bubble = document.getElementById("byte-bubble") as HTMLElement;
+
+	// ---------- small helpers ----------
+	let hideTimer = 0;
+	let lastSpoke = 0;
+
+	function say(text: string, ms = 4500) {
+		bubble.textContent = text; // textContent, never innerHTML: text can't become markup
+		bubble.hidden = false;
+		clearTimeout(hideTimer);
+		hideTimer = window.setTimeout(() => (bubble.hidden = true), ms);
+		lastSpoke = Date.now();
+	}
+
+	function happy(ms = 2200) {
+		root.classList.add("happy");
+		setTimeout(() => root.classList.remove("happy"), ms);
+	}
+
+	function wave() {
+		root.classList.remove("waving");
+		void root.offsetWidth; // forces the browser to restart the animation
+		root.classList.add("waving");
+		setTimeout(() => root.classList.remove("waving"), 2300);
+	}
+
+	// ---------- eyes and head follow the cursor ----------
+	if (!reduce) {
+		let raf = 0;
+		window.addEventListener(
+			"pointermove",
+			(e) => {
+				if (raf) return; // at most one update per frame
+				raf = requestAnimationFrame(() => {
+					raf = 0;
+					const r = btn.getBoundingClientRect();
+					const dx = e.clientX - (r.left + r.width / 2);
+					const dy = e.clientY - (r.top + r.height / 2);
+					const nx = Math.max(-1, Math.min(1, dx / 300)); // -1 .. 1
+					const ny = Math.max(-1, Math.min(1, dy / 300));
+					root.style.setProperty("--ex", `${nx * 3}px`);
+					root.style.setProperty("--ey", `${ny * 2.5}px`);
+					root.style.setProperty("--tilt", `${nx * 7}deg`);
+				});
+			},
+			{ passive: true }
+		);
+	}
+
+	// ---------- click: say hi (3 clicks = achievement) ----------
+	const quips = [
+		"Hey! Keep scrolling, there's XP to earn.",
+		"Try pressing ` for the terminal.",
+		"Psst. View the page source sometime.",
+		"I'm made of SVG and good intentions.",
+	];
+	let clicks = 0;
+
+	btn.addEventListener("click", () => {
+		clicks++;
+		wave();
+		happy();
+		say(quips[(clicks - 1) % quips.length]);
+		if (clicks === 3) window.dispatchEvent(new CustomEvent("fsi:award", { detail: "friend" }));
+	});
+
+	// ---------- comments on each section as you reach it ----------
+	const LINES: Record<string, string> = {
+		projects: "These are the builds. AURUM is the big one.",
+		stack: "What Dahood actually uses. Still learning, and he says so.",
+		books: "The free one is a good place to start.",
+		story: "The short version of how he got here.",
+		thoughts: "He writes down what he learns. Open one for XP.",
+		contact: "Say hi. Dahood is friendly.",
+	};
+	const spoken = new Set<string>();
+
+	const io = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) {
+				const id = entry.target.id;
+				if (!entry.isIntersecting || spoken.has(id)) continue;
+				if (Date.now() - lastSpoke < 5000) continue; // don't talk over myself
+				spoken.add(id);
+				say(LINES[id]);
+			}
+		},
+		{ rootMargin: "-40% 0px -40% 0px" }
+	);
+
+	for (const id of Object.keys(LINES)) {
+		const el = document.getElementById(id);
+		if (el) io.observe(el);
+	}
+
+	// ---------- reacting to XP events from the game system ----------
+	window.addEventListener("fsi:gain", (e) => {
+		const d = (e as CustomEvent).detail;
+		if (d.leveledUp) {
+			happy();
+			wave();
+			say(`Level up! You're a ${d.levelName} now.`);
+		} else if (!d.quiet) {
+			happy();
+			say(`Unlocked: ${d.title}`);
+		}
+	});
+
+	// ---------- greeting (home page only) ----------
+	function returning() {
+		try {
+			return Number(JSON.parse(localStorage.getItem(KEY) || "{}").xp) > 0;
+		} catch {
+			return false;
+		}
+	}
+
+	// Decide this NOW, at page load. If we asked later, the boot intro would
+	// already have given a brand-new visitor 10 XP and they'd look "returning".
+	const wasReturning = returning();
+
+	function greet() {
+		wave();
+		say(wasReturning ? "Welcome back. Your XP is saved." : "Hey, I'm Byte, Dahood's sidekick. Scroll around. There's XP to earn.", 6000);
+	}
+
+	if (location.pathname === "/") {
+		if (document.getElementById("boot-overlay")) {
+			window.addEventListener("fsi:boot-done", () => setTimeout(greet, 700), { once: true });
+		} else {
+			setTimeout(greet, 1200);
+		}
+	}
+</script>

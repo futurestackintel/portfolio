@@ -1,4 +1,5 @@
 ---
+// Props = values passed in by whoever uses this card
 const { title, tag, description, status, href } = Astro.props;
 ---
 
@@ -23,7 +24,7 @@ const { title, tag, description, status, href } = Astro.props;
 		gap: 12px;
 		padding: 20px;
 		background: var(--bg-panel);
-		border: 1px solid #1f1f1f;
+		border: 1px solid var(--border);
 		transition: border-color 0.2s, transform 0.2s;
 	}
 
@@ -35,6 +36,7 @@ const { title, tag, description, status, href } = Astro.props;
 	.top {
 		display: flex;
 		justify-content: space-between;
+		gap: 12px;
 		font-family: var(--font-mono);
 		font-size: 0.75rem;
 	}
@@ -45,6 +47,7 @@ const { title, tag, description, status, href } = Astro.props;
 
 	.status {
 		color: var(--text-dim);
+		text-align: right;
 	}
 
 	h3 {
@@ -64,5 +67,15 @@ const { title, tag, description, status, href } = Astro.props;
 		font-size: 0.85rem;
 		color: var(--accent);
 		text-decoration: none;
+	}
+
+	.link:hover {
+		text-decoration: underline;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.card:hover {
+			transform: none;
+		}
 	}
 </style>

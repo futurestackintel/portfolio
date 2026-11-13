@@ -1,6 +1,7 @@
 ---
 // Paste your YouTube video ID here when the video is ready.
 // For https://www.youtube.com/watch?v=abc123XYZ the ID is: abc123XYZ
+// While this is empty, the video window is hidden and only the text shows.
 const videoId = '';
 
 const embedUrl = videoId
@@ -11,18 +12,20 @@ const embedUrl = videoId
 <section id="story" class="story">
 	<h2><span class="hash">#</span> story</h2>
 	<p class="intro">
-		TODO: two sentences in your own voice about who you are and why you build.
+		I studied Adult Education at the University of Ilorin, then taught myself web development
+		and cybersecurity by building things. I'm most interested in where AI, security and
+		education meet, and I publish what I learn along the way.
 	</p>
+	<p class="quote">Ideas should not remain ideas. They should become products, systems and opportunities.</p>
 
-	<div class="window">
-		<div class="window-bar">
-			<span class="dot"></span>
-			<span class="dot"></span>
-			<span class="dot"></span>
-			<span class="window-title">story.mp4</span>
-		</div>
-
-		{videoId ? (
+	{videoId && (
+		<div class="window">
+			<div class="window-bar">
+				<span class="dot"></span>
+				<span class="dot"></span>
+				<span class="dot"></span>
+				<span class="window-title">story.mp4</span>
+			</div>
 			<iframe
 				id="story-frame"
 				class="frame"
@@ -31,13 +34,8 @@ const embedUrl = videoId
 				allow="autoplay; encrypted-media; picture-in-picture"
 				allowfullscreen
 			></iframe>
-		) : (
-			<div class="placeholder">
-				<p>&gt; video loading...</p>
-				<p class="dim">coming soon</p>
-			</div>
-		)}
-	</div>
+		</div>
+	)}
 </section>
 
 <style>
@@ -59,8 +57,19 @@ const embedUrl = videoId
 	}
 
 	.intro {
+		margin: 0 0 20px;
+		max-width: 620px;
+		color: var(--text);
+		font-size: 1.05rem;
+	}
+
+	.quote {
 		margin: 0 0 32px;
+		padding-left: 16px;
 		max-width: 560px;
+		border-left: 2px solid var(--accent);
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
 		color: var(--text-dim);
 	}
 
@@ -97,28 +106,11 @@ const embedUrl = videoId
 		aspect-ratio: 16 / 9;
 		border: 0;
 	}
-
-	.placeholder {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		aspect-ratio: 16 / 9;
-		font-family: var(--font-mono);
-		color: var(--accent);
-	}
-
-	.placeholder p {
-		margin: 0;
-	}
-
-	.dim {
-		color: var(--text-dim);
-		font-size: 0.85rem;
-	}
 </style>
 
 <script>
+	// The video URL sits in data-src, so nothing loads until the visitor
+	// actually scrolls to it. Then we copy it into src and it starts (muted).
 	const frame = document.getElementById("story-frame") as HTMLIFrameElement | null;
 
 	if (frame) {

@@ -1,0 +1,6 @@
+nice. you read the source, then robots.txt, then followed the path. that is the job.
+
+FSI{n0t_v1b3c0d3d}
+
+now open the terminal on the site (press ` or tap the >_ button) and run:
+flag FSI{...}

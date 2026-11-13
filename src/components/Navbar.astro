@@ -1,11 +1,14 @@
 <header class="nav">
-	<a href="/" class="logo">&gt;_ Dahood-Founder @Futurestack Intelligence<span class="cursor"></span></a>
-    <nav class="links">
-		<a href="#projects">projects</a>
-		<a href="#books">books</a>
-		<a href="#story">story</a>
-		<a href="#thoughts">thoughts</a>
-        <a href="#contact">contact</a>
+	<a href="/" class="logo">
+		<span>&gt;_ Dahood</span><span class="logo-long">-Founder @Futurestack Intelligence</span><span class="cursor" aria-hidden="true"></span>
+	</a>
+	<nav class="links" aria-label="Sections">
+		<a href="/#projects">projects</a>
+		<a href="/#stack">stack</a>
+		<a href="/#books">books</a>
+		<a href="/#story">story</a>
+		<a href="/#thoughts">thoughts</a>
+		<a href="/#contact">contact</a>
 	</nav>
 </header>
 
@@ -15,12 +18,14 @@
 		top: 0;
 		z-index: 100;
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: space-between;
 		align-items: center;
-		padding: 16px 24px;
+		gap: 6px 24px;
+		padding: 14px 24px;
 		background: rgba(10, 10, 10, 0.85);
 		backdrop-filter: blur(8px);
-		border-bottom: 1px solid #1f1f1f;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.logo {
@@ -48,7 +53,8 @@
 
 	.links {
 		display: flex;
-		gap: 24px;
+		flex-wrap: wrap;
+		gap: 4px 20px;
 	}
 
 	.links a {
@@ -63,13 +69,39 @@
 		color: var(--accent);
 	}
 
-	@media (max-width: 520px) {
+	/* phones: drop the long part of the logo so the links get room */
+	@media (max-width: 700px) {
+		.nav {
+			padding: 10px 16px;
+			gap: 4px;
+		}
+
+		.logo-long {
+			display: none;
+		}
+
+		/* one row that scrolls sideways if it ever runs out of room */
 		.links {
+			flex-wrap: nowrap;
+			width: 100%;
 			gap: 14px;
+			overflow-x: auto;
+			scrollbar-width: none;
+		}
+
+		.links::-webkit-scrollbar {
+			display: none;
 		}
 
 		.links a {
 			font-size: 0.8rem;
+			white-space: nowrap;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.cursor {
+			animation: none;
 		}
 	}
 </style>

@@ -1,9 +1,11 @@
 ---
+/*
+  Add a link = fill in "value" and "href". Empty href = the row is hidden.
+  (X is empty on purpose: add your handle when you have it.)
+*/
 const links = [
-	{ label: 'email', value: '', href: '' },
-	{ label: 'github', value: '', href: '' },
+	{ label: 'github', value: 'futurestackintel', href: 'https://github.com/futurestackintel' },
 	{ label: 'x', value: '', href: '' },
-	{ label: 'linkedin', value: '', href: '' },
 	{ label: 'gumroad', value: 'futurestackintel', href: 'https://futurestackintel.gumroad.com' },
 ];
 
@@ -14,6 +16,12 @@ const visible = links.filter((link) => link.href);
 	<h2><span class="hash">#</span> contact</h2>
 	<p class="intro">Open to work, collaborations and security conversations.</p>
 	<ul class="list">
+		<li>
+			<span class="label">email</span>
+			<!-- The address is split into data-* parts and joined by the script below,
+			     so scrapers reading the raw HTML don't find a ready-made mailto link. -->
+			<a id="email-link" data-u="princeadeagbo02" data-d="gmail.com" href="#contact">princeadeagbo02 [at] gmail.com</a>
+		</li>
 		{visible.map((link) => (
 			<li>
 				<span class="label">{link.label}</span>
@@ -27,7 +35,7 @@ const visible = links.filter((link) => link.href);
 	.contact {
 		max-width: 900px;
 		margin: 0 auto;
-		padding: 80px 24px 120px;
+		padding: 80px 24px 60px;
 		scroll-margin-top: 70px;
 	}
 
@@ -65,9 +73,19 @@ const visible = links.filter((link) => link.href);
 	a {
 		color: var(--accent);
 		text-decoration: none;
+		overflow-wrap: anywhere;
 	}
 
 	a:hover {
 		text-decoration: underline;
 	}
 </style>
+
+<script>
+	const el = document.getElementById("email-link") as HTMLAnchorElement | null;
+	if (el) {
+		const address = `${el.dataset.u}@${el.dataset.d}`;
+		el.href = `mailto:${address}`;
+		el.textContent = address;
+	}
+</script>

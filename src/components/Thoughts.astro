@@ -1,0 +1,89 @@
+---
+const modules = import.meta.glob('../pages/thoughts/*.md', { eager: true });
+
+const posts = Object.values(modules)
+	.map((mod: any) => ({ ...mod.frontmatter, url: mod.url }))
+	.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+---
+
+<section id="thoughts" class="thoughts">
+	<h2><span class="hash">#</span> thoughts</h2>
+	{posts.length === 0 ? (
+		<p class="empty">&gt; no notes yet.</p>
+	) : (
+		<ul class="list">
+			{posts.map((post) => (
+				<li>
+					<a href={post.url} class="row">
+						<span class="date">{post.date}</span>
+						<span class="title">{post.title}</span>
+						<span class="summary">{post.summary}</span>
+					</a>
+				</li>
+			))}
+		</ul>
+	)}
+</section>
+
+<style>
+	.thoughts {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 80px 24px;
+		scroll-margin-top: 70px;
+	}
+
+	h2 {
+		margin: 0 0 32px;
+		font-family: var(--font-mono);
+		font-size: 1.5rem;
+	}
+
+	.hash {
+		color: var(--accent);
+	}
+
+	.empty {
+		font-family: var(--font-mono);
+		color: var(--text-dim);
+	}
+
+	.list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.row {
+		display: grid;
+		gap: 4px;
+		padding: 16px 20px;
+		background: var(--bg-panel);
+		border: 1px solid var(--border);
+		text-decoration: none;
+		transition: border-color 0.2s;
+	}
+
+	.row:hover {
+		border-color: var(--accent);
+	}
+
+	.date {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		color: var(--accent);
+	}
+
+	.title {
+		color: var(--text);
+		font-size: 1.1rem;
+	}
+
+	.summary {
+		color: var(--text-dim);
+		font-size: 0.9rem;
+	}
+</style>

@@ -1,0 +1,73 @@
+---
+const links = [
+	{ label: 'email', value: '', href: '' },
+	{ label: 'github', value: '', href: '' },
+	{ label: 'x', value: '', href: '' },
+	{ label: 'linkedin', value: '', href: '' },
+	{ label: 'gumroad', value: 'futurestackintel', href: 'https://futurestackintel.gumroad.com' },
+];
+
+const visible = links.filter((link) => link.href);
+---
+
+<section id="contact" class="contact">
+	<h2><span class="hash">#</span> contact</h2>
+	<p class="intro">Open to work, collaborations and security conversations.</p>
+	<ul class="list">
+		{visible.map((link) => (
+			<li>
+				<span class="label">{link.label}</span>
+				<a href={link.href} target="_blank" rel="noopener noreferrer">{link.value}</a>
+			</li>
+		))}
+	</ul>
+</section>
+
+<style>
+	.contact {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 80px 24px 120px;
+		scroll-margin-top: 70px;
+	}
+
+	h2 {
+		margin: 0 0 16px;
+		font-family: var(--font-mono);
+		font-size: 1.5rem;
+	}
+
+	.hash {
+		color: var(--accent);
+	}
+
+	.intro {
+		margin: 0 0 32px;
+		color: var(--text-dim);
+	}
+
+	.list {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		font-family: var(--font-mono);
+	}
+
+	.label {
+		display: inline-block;
+		width: 90px;
+		color: var(--text-dim);
+	}
+
+	a {
+		color: var(--accent);
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+</style>
